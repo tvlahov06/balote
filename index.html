@@ -48,7 +48,7 @@
   .section-title::after{content:'';flex:1;height:1px;background:var(--c-border);}
   .card{background:var(--c-white);border:1px solid var(--c-border-strong);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;overflow:hidden;}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;min-width:0;}
-  .form-group{display:flex;flex-direction:column;gap:5px;}
+  .form-group{display:flex;flex-direction:column;gap:5px;min-width:0;}
   .form-group label{font-size:12px;text-transform:uppercase;letter-spacing:0.07em;color:var(--c-muted);}
   .form-group input,.form-group select,.form-group textarea{padding:0.5rem 0.75rem;border:1px solid var(--c-border-strong);border-radius:var(--radius-sm);font-size:15px;font-family:'Georgia',serif;background:var(--c-sand);color:var(--c-ink);width:100%;max-width:100%;outline:none;transition:border-color 0.15s;overflow:hidden;}
   .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--c-terra);}
@@ -238,9 +238,9 @@
     <div class="section-title">Nova utakmica</div>
     <div id="nova-alert"></div>
     <div class="game-form">
-      <div class="form-row">
-        <div class="form-group"><label>Datum</label><input type="date" id="match-date"></div>
-        <div class="form-group"><label>Lokacija (opcija)</label><input type="text" id="match-location" placeholder="npr. Park, Riva..."></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="form-group"><label>Datum</label><input type="date" id="match-date" style="width:100%;min-width:0;box-sizing:border-box;"></div>
+        <div class="form-group"><label>Lokacija (opcija)</label><input type="text" id="match-location" placeholder="npr. Park, Riva..." style="width:100%;min-width:0;box-sizing:border-box;"></div>
       </div>
       <div class="form-row">
         <div class="form-group"><label>Ekipa 1</label><select id="team1-select" onchange="renderPlayerInfo();updatePreview()"></select></div>
