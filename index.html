@@ -50,7 +50,7 @@
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;min-width:0;}
   .form-group{display:flex;flex-direction:column;gap:5px;min-width:0;}
   .form-group label{font-size:12px;text-transform:uppercase;letter-spacing:0.07em;color:var(--c-muted);}
-  .form-group input,.form-group select,.form-group textarea{padding:0.5rem 0.75rem;border:1px solid var(--c-border-strong);border-radius:var(--radius-sm);font-size:15px;font-family:'Georgia',serif;background:var(--c-sand);color:var(--c-ink);width:100%;max-width:100%;outline:none;transition:border-color 0.15s;overflow:hidden;}
+  .form-group input,.form-group select,.form-group textarea{padding:0.5rem 0.75rem;border:1px solid var(--c-border-strong);border-radius:var(--radius-sm);font-size:15px;font-family:'Georgia',serif;background:var(--c-sand);color:var(--c-ink);width:100%;max-width:100%;outline:none;transition:border-color 0.15s;box-sizing:border-box;height:38px;line-height:1.2;text-align:left;-webkit-appearance:none;-moz-appearance:none;appearance:none;}.form-group input[type='date']{padding:0.5rem 0.75rem;font-size:15px;}.form-group textarea{height:60px;}
   .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--c-terra);}
   .form-group textarea{resize:none;height:60px;}
   .game-form{background:var(--c-white);border:1px solid var(--c-border-strong);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;overflow:hidden;}
