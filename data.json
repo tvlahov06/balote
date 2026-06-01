@@ -1,0 +1,27 @@
+{
+  "teams": [
+    {
+      "id": 1,
+      "name": "Ekipa 1",
+      "color": "terra",
+      "members": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Ekipa 2",
+      "color": "sky",
+      "members": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    }
+  ],
+  "matches": []
+}
