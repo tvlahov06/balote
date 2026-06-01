@@ -23,5 +23,27 @@
       ]
     }
   ],
-  "matches": []
+  "matches": [
+    {
+      "id": "1780342260903",
+      "date": "2026-05-08",
+      "team1id": 1,
+      "team2id": 2,
+      "location": "Dicmo",
+      "note": "Za ekipu PRO umisto Marina igra Matas.",
+      "format": 2,
+      "partije": [
+        [
+          8,
+          16
+        ],
+        [
+          16,
+          9
+        ]
+      ],
+      "score1": 1,
+      "score2": 1
+    }
+  ]
 }
