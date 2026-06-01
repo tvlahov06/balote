@@ -67,17 +67,17 @@
       "score2": 2
     },
     {
-      "id": "1780343595168",
+      "id": "1780343733324",
       "date": "2026-06-01",
       "team1id": 1,
       "team2id": 2,
-      "location": "test",
+      "location": "Test",
       "note": "",
       "format": 3,
       "partije": [
         [
           16,
-          14
+          15
         ],
         [
           15,
