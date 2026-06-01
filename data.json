@@ -44,6 +44,27 @@
       ],
       "score1": 1,
       "score2": 1
+    },
+    {
+      "id": "1780342381848",
+      "date": "2026-05-22",
+      "team1id": 1,
+      "team2id": 2,
+      "location": "Slavuj",
+      "note": "",
+      "format": 2,
+      "partije": [
+        [
+          14,
+          16
+        ],
+        [
+          15,
+          16
+        ]
+      ],
+      "score1": 0,
+      "score2": 2
     }
   ]
 }
