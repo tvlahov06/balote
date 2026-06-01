@@ -148,6 +148,49 @@
     .nav-btn{padding:0.65rem 0.75rem;font-size:12px;}
     input[type="date"]{font-size:14px;}
   }
+
+  /* FORCE all inputs to identical dimensions */
+  input, select, textarea {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    box-sizing: border-box !important;
+  }
+  .form-group input,
+  .form-group select {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 0.75rem !important;
+    font-size: 15px !important;
+    line-height: 42px !important;
+    text-align: left !important;
+    width: 100% !important;
+    display: block !important;
+  }
+  .form-group input[type="date"] {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 0.75rem !important;
+    line-height: 42px !important;
+    -webkit-appearance: none !important;
+    text-align: left !important;
+  }
+  .form-group input[type="date"]::-webkit-date-and-time-value {
+    text-align: left !important;
+    height: 42px !important;
+    line-height: 42px !important;
+  }
+  .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    margin-left: auto;
+  }
+  .form-group textarea {
+    height: 60px !important;
+    line-height: 1.4 !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
 </style>
 </head>
 <body>
