@@ -2,24 +2,24 @@
   "teams": [
     {
       "id": 1,
-      "name": "Ekipa 1",
+      "name": "Ekipa AI",
       "color": "terra",
       "members": [
-        "",
-        "",
-        "",
-        ""
+        "Darko",
+        "Kavajin",
+        "Gazi",
+        "Tomo"
       ]
     },
     {
       "id": 2,
-      "name": "Ekipa 2",
+      "name": "Ekipa PRO",
       "color": "sky",
       "members": [
-        "",
-        "",
-        "",
-        ""
+        "Andi",
+        "Ante",
+        "Marin",
+        "Puljić"
       ]
     }
   ],
