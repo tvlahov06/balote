@@ -1,4 +1,4 @@
-const CACHE = 'balote-v2';
+const CACHE = 'balote-v3';
 const ASSETS = [
   './',
   './index.html',
