@@ -554,12 +554,42 @@ function renderPlayerInfo() {
   const t2=state.teams.find(t=>t.id===parseInt(document.getElementById('team2-select').value));
   const m1=t1?t1.members.filter(m=>m.trim()):[], m2=t2?t2.members.filter(m=>m.trim()):[];
   if(!m1.length&&!m2.length){document.getElementById('player-info-row').innerHTML='';return;}
-  let h='<div class="form-row" style="margin-bottom:1rem">';
-  if(m1.length) h+=`<div class="form-group"><label>Igrači ${t1.name}</label><div style="font-size:13px;color:var(--c-muted);margin-top:4px">${m1.join(', ')}</div></div>`;
-  if(m2.length) h+=`<div class="form-group"><label>Igrači ${t2.name}</label><div style="font-size:13px;color:var(--c-muted);margin-top:4px">${m2.join(', ')}</div></div>`;
-  h+='</div>'; document.getElementById('player-info-row').innerHTML=h;
+  const buildList = (team, players, prefix) => {
+    if (!players.length) return '';
+    let items = players.map((p,i) => `
+      <label class="player-check" style="display:flex;align-items:center;gap:8px;padding:0.35rem 0;font-size:14px;cursor:pointer;user-select:none;">
+        <input type="checkbox" id="${prefix}-${i}" checked onchange="togglePlayerStrike(this,'${prefix}-label-${i}')" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--c-terra-dark);">
+        <span id="${prefix}-label-${i}" style="transition:all 0.15s;">${p}</span>
+      </label>`).join('');
+    return `<div class="form-group"><label>Igrači ${team.name}</label><div style="margin-top:4px">${items}</div></div>`;
+  };
+  let h = '<div class="form-row" style="margin-bottom:1rem">';
+  h += buildList(t1, m1, 'p1');
+  h += buildList(t2, m2, 'p2');
+  h += '</div>';
+  document.getElementById('player-info-row').innerHTML = h;
+}
+function togglePlayerStrike(cb, labelId) {
+  const lbl = document.getElementById(labelId);
+  if (!lbl) return;
+  if (cb.checked) {
+    lbl.style.textDecoration = 'none';
+    lbl.style.opacity = '1';
+  } else {
+    lbl.style.textDecoration = 'line-through';
+    lbl.style.opacity = '0.5';
+  }
 }
 
+function getActivePlayers(prefix, team) {
+  const members = team ? team.members.filter(m=>m.trim()) : [];
+  const active = [];
+  members.forEach((p,i) => {
+    const cb = document.getElementById(prefix + '-' + i);
+    if (!cb || cb.checked) active.push(p);
+  });
+  return active;
+}
 function saveMatch() {
   const t1id=parseInt(document.getElementById('team1-select').value);
   const t2id=parseInt(document.getElementById('team2-select').value);
@@ -568,9 +598,13 @@ function saveMatch() {
   const note=document.getElementById('match-note').value.trim();
   if(!date){showAlert('nova-alert','Molimo unesite datum.','error');return;}
   if(t1id===t2id){showAlert('nova-alert','Odaberite dvije različite ekipe.','error');return;}
+  const t1=state.teams.find(t=>t.id===t1id);
+  const t2=state.teams.find(t=>t.id===t2id);
+  const players1=getActivePlayers('p1',t1);
+  const players2=getActivePlayers('p2',t2);
   const partije=getPartijaValues('partije-unosp',currentFormat);
   const {w1,w2}=calcWins(partije);
-  state.matches.push({id:Date.now().toString(),date,team1id:t1id,team2id:t2id,location,note,format:currentFormat,partije,score1:w1,score2:w2});
+  state.matches.push({id:Date.now().toString(),date,team1id:t1id,team2id:t2id,location,note,format:currentFormat,partije,score1:w1,score2:w2,players1,players2});
   syncToGitHub().then(()=>renderAdminView());
 }
 
@@ -585,15 +619,21 @@ function getTeamStats(tid) {
 }
 
 function buildScorecard(m) {
-  const t1=state.teams.find(t=>t.id===m.team1id)||{name:'Ekipa 1',id:1};
-  const t2=state.teams.find(t=>t.id===m.team2id)||{name:'Ekipa 2',id:2};
+  const t1=state.teams.find(t=>t.id===m.team1id)||{name:'Ekipa 1',id:1,members:[]};
+  const t2=state.teams.find(t=>t.id===m.team2id)||{name:'Ekipa 2',id:2,members:[]};
   const pj=m.partije||[], n=pj.length;
+  const cols = 2+n;
+  // Use stored players if available, otherwise fall back to current team members
+  const p1 = (m.players1 && m.players1.length) ? m.players1 : (t1.members||[]).filter(x=>x.trim());
+  const p2 = (m.players2 && m.players2.length) ? m.players2 : (t2.members||[]).filter(x=>x.trim());
   let h=`<td></td><td style="text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--c-muted);border-left:1px solid var(--c-border);padding:2px 7px">Uk.</td>`;
   for(let i=0;i<n;i++) h+=`<td style="text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--c-muted);border-left:1px solid var(--c-border);padding:2px 7px">${i+1}.</td>`;
   let t1c=`<td class="sc-team"><span class="tag ${teamTagClass(t1.id)}">${t1.name}</span></td><td class="sc-score" style="font-size:16px;font-weight:bold">${m.score1}</td>`;
   let t2c=`<td class="sc-team"><span class="tag ${teamTagClass(t2.id)}">${t2.name}</span></td><td class="sc-score" style="font-size:16px;font-weight:bold">${m.score2}</td>`;
   for(let i=0;i<n;i++){const[a,b]=pj[i];t1c+=`<td class="sc-score ${a>b?'sc-win-t1':''}">${a}</td>`;t2c+=`<td class="sc-score ${b>a?'sc-win-t2':''}">${b}</td>`;}
-  return`<table class="scorecard"><tr>${h}</tr><tr>${t1c}</tr><tr class="sc-sep"><td colspan="${2+n}"></td></tr><tr>${t2c}</tr></table>`;
+  const p1Row = p1.length ? `<tr><td colspan="${cols}" style="padding:2px 7px 6px 7px;font-size:12px;color:var(--c-muted);font-style:italic;">${p1.join(', ')}</td></tr>` : '';
+  const p2Row = p2.length ? `<tr><td colspan="${cols}" style="padding:2px 7px 2px 7px;font-size:12px;color:var(--c-muted);font-style:italic;">${p2.join(', ')}</td></tr>` : '';
+  return`<table class="scorecard"><tr>${h}</tr><tr>${t1c}</tr>${p1Row}<tr class="sc-sep"><td colspan="${cols}"></td></tr><tr>${t2c}</tr>${p2Row}</table>`;
 }
 
 function renderStats() {
@@ -647,6 +687,21 @@ function openEditModal(id) {
   editingMatchId=id;editFormat=m.format||2;
   const t1=state.teams.find(t=>t.id===m.team1id)||state.teams[0];
   const t2=state.teams.find(t=>t.id===m.team2id)||state.teams[1];
+  const all1 = (t1.members||[]).filter(x=>x.trim());
+  const all2 = (t2.members||[]).filter(x=>x.trim());
+  const active1 = m.players1 && m.players1.length ? m.players1 : all1;
+  const active2 = m.players2 && m.players2.length ? m.players2 : all2;
+  const buildEditList = (team, allPlayers, activePlayers, prefix) => {
+    if (!allPlayers.length) return '';
+    const items = allPlayers.map((p,i) => {
+      const isActive = activePlayers.includes(p);
+      return `<label class="player-check" style="display:flex;align-items:center;gap:8px;padding:0.35rem 0;font-size:14px;cursor:pointer;user-select:none;">
+        <input type="checkbox" id="${prefix}-${i}" ${isActive?'checked':''} onchange="togglePlayerStrike(this,'${prefix}-label-${i}')" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--c-terra-dark);">
+        <span id="${prefix}-label-${i}" style="transition:all 0.15s;${isActive?'':'text-decoration:line-through;opacity:0.5;'}">${p}</span>
+      </label>`;
+    }).join('');
+    return `<div class="form-group" style="margin-bottom:0.75rem"><label>Igrači ${team.name}</label><div style="margin-top:4px">${items}</div></div>`;
+  };
   document.getElementById('edit-modal-body').innerHTML=`
     <div class="form-row">
       <div class="form-group"><label>Datum</label><input type="date" id="edit-date" value="${m.date}"></div>
@@ -656,7 +711,9 @@ function openEditModal(id) {
     <div style="margin-bottom:1rem;font-size:13px;color:var(--c-muted)">
       <span class="tag ${teamTagClass(t1.id)}">${t1.name}</span> vs <span class="tag ${teamTagClass(t2.id)}">${t2.name}</span>
     </div>
-    <div class="form-group" style="margin-bottom:1rem"><label>Format</label>
+    ${buildEditList(t1, all1, active1, 'ep1')}
+    ${buildEditList(t2, all2, active2, 'ep2')}
+    <div class="form-group" style="margin-bottom:1rem;margin-top:1rem"><label>Format</label>
       <div class="partija-format">
         <button class="format-btn ${editFormat===2?'active':''}" id="edit-fmt2" onclick="switchEditFormat(2)">Na 2 partije</button>
         <button class="format-btn ${editFormat===3?'active':''}" id="edit-fmt3" onclick="switchEditFormat(3)">Na 3 partije</button>
@@ -695,6 +752,10 @@ function saveEdit() {
   m.location=document.getElementById('edit-location').value.trim();
   m.note=document.getElementById('edit-note').value.trim();
   m.format=editFormat;
+  const t1=state.teams.find(t=>t.id===m.team1id)||state.teams[0];
+  const t2=state.teams.find(t=>t.id===m.team2id)||state.teams[1];
+  m.players1=getActivePlayers('ep1',t1);
+  m.players2=getActivePlayers('ep2',t2);
   const p=[];for(let i=1;i<=editFormat;i++)p.push([parseInt(document.getElementById('editp'+i+'a').value)||0,parseInt(document.getElementById('editp'+i+'b').value)||0]);
   m.partije=p;const{w1,w2}=calcWins(p);m.score1=w1;m.score2=w2;
   closeModal();syncToGitHub().then(()=>renderAdminView());
