@@ -30,7 +30,7 @@
       "team1id": 1,
       "team2id": 2,
       "location": "Slavuj",
-      "note": "",
+      "note": "E jest ih napeglali",
       "format": 3,
       "partije": [
         [
@@ -62,5 +62,5 @@
       ]
     }
   ],
-  "updatedAt": "2026-10-18T18:30:50.207Z"
+  "updatedAt": "2026-10-18T18:35:35.483Z"
 }
