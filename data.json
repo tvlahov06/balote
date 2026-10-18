@@ -23,27 +23,5 @@
       ]
     }
   ],
-  "matches": [
-    {
-      "id": "1792344054319",
-      "date": "2026-10-18",
-      "team1id": 1,
-      "team2id": 2,
-      "location": "Slavuj",
-      "note": "",
-      "format": 2,
-      "partije": [
-        [
-          16,
-          8
-        ],
-        [
-          16,
-          7
-        ]
-      ],
-      "score1": 2,
-      "score2": 0
-    }
-  ]
+  "matches": []
 }
