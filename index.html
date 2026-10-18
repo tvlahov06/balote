@@ -420,12 +420,30 @@ function fmtUpdated(iso) {
 async function loadFromGitHub() {
   setSyncStatus('loading', 'Učitavam podatke...');
   try {
-    const r = await fetch(DATA_URL + '?t=' + Date.now());
-    if (!r.ok) throw new Error(r.status);
-    const data = await r.json();
+    let data = null;
+    // 1) GitHub API (bez CDN cachea, uvijek zadnja verzija)
+    try {
+      const h = { 'Accept': 'application/vnd.github.raw+json' };
+      const tk = getToken();
+      if (tk) h['Authorization'] = 'token ' + tk;
+      const ra = await fetch('https://api.github.com/repos/' + GITHUB_REPO + '/contents/data.json?ref=main&t=' + Date.now(), { headers: h, cache: 'no-store' });
+      if (ra.ok) data = await ra.json();
+    } catch(e) {}
+    // 2) rezerva: raw.githubusercontent.com (može kasniti par minuta)
+    if (!data) {
+      const r = await fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw new Error(r.status);
+      data = await r.json();
+    }
+    // ako je lokalna kopija novija od dohvaćene (npr. tek spremljeno), zadrži lokalnu
+    try {
+      const loc = JSON.parse(localStorage.getItem('balote_v3') || '{}');
+      if (loc.updatedAt && (!data.updatedAt || new Date(loc.updatedAt) > new Date(data.updatedAt))) data = loc;
+    } catch(e) {}
     if (data.teams) state.teams = data.teams;
     if (data.matches) state.matches = data.matches;
     state.updatedAt = data.updatedAt || null;
+    try { localStorage.setItem('balote_v3', JSON.stringify(state)); } catch(e) {}
     setSyncStatus('ok', fmtUpdated(state.updatedAt));
   } catch(e) {
     setSyncStatus('err', 'Greška — prikazujem lokalne podatke');
