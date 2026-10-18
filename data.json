@@ -29,7 +29,7 @@
       "date": "2026-10-18",
       "team1id": 1,
       "team2id": 2,
-      "location": "Test",
+      "location": "Test novo",
       "note": "",
       "format": 2,
       "partije": [
@@ -57,5 +57,6 @@
         "Puljić"
       ]
     }
-  ]
+  ],
+  "updatedAt": "2026-10-18T18:15:00.430Z"
 }
