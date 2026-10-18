@@ -29,7 +29,7 @@
       "date": "2026-10-18",
       "team1id": 1,
       "team2id": 2,
-      "location": "Test2",
+      "location": "Test novo",
       "note": "",
       "format": 2,
       "partije": [
@@ -58,5 +58,5 @@
       ]
     }
   ],
-  "updatedAt": "2026-10-18T18:17:33.298Z"
+  "updatedAt": "2026-10-18T18:23:20.002Z"
 }
