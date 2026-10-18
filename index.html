@@ -144,7 +144,9 @@
     .view{padding:1rem;}
     .form-row{grid-template-columns:1fr;}
     .teams-grid{grid-template-columns:1fr;}
-    .match-item-admin .match-item-inner{grid-template-columns:1fr;}
+    .match-item-admin .match-item-inner,.match-item-view .match-item-inner{grid-template-columns:1fr;gap:0.4rem;}
+    .match-meta{display:flex;flex-wrap:wrap;gap:0 0.75rem;}
+    .match-item-inner > div:nth-child(2){min-width:0;overflow-x:auto;}
     .nav-btn{padding:0.65rem 0.75rem;font-size:12px;}
     input[type="date"]{font-size:14px;}
   }
