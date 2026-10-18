@@ -23,5 +23,39 @@
       ]
     }
   ],
-  "matches": []
+  "matches": [
+    {
+      "id": "1792345151372",
+      "date": "2026-10-18",
+      "team1id": 1,
+      "team2id": 2,
+      "location": "Slavuj",
+      "note": "",
+      "format": 2,
+      "partije": [
+        [
+          16,
+          8
+        ],
+        [
+          8,
+          16
+        ]
+      ],
+      "score1": 1,
+      "score2": 1,
+      "players1": [
+        "Darko",
+        "Kavajin",
+        "Gazi",
+        "Tomo"
+      ],
+      "players2": [
+        "Andi",
+        "Ante",
+        "Marin",
+        "Puljić"
+      ]
+    }
+  ]
 }
