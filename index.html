@@ -191,6 +191,28 @@
     padding: 0.5rem 0.75rem !important;
   }
 
+
+  /* Checkboxes: undo the generic input overrides */
+  .form-group input[type="checkbox"], input[type="checkbox"] {
+    -webkit-appearance: checkbox !important;
+    -moz-appearance: checkbox !important;
+    appearance: auto !important;
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    max-height: 20px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    line-height: normal !important;
+    flex-shrink: 0;
+    accent-color: var(--c-terra-dark);
+  }
+  .player-check { display:flex; align-items:center; gap:10px; padding:0.45rem 0; font-size:15px; cursor:pointer; user-select:none; }
+  .member-edit-row { display:flex; gap:0.5rem; align-items:flex-start; margin-bottom:0.5rem; }
+  .member-edit-row .form-group { flex:1; min-width:0; }
+  .member-edit-row .btn { height:42px; padding:0 0.8rem; justify-content:center; }
 </style>
 </head>
 <body>
@@ -328,12 +350,9 @@
         <button class="btn btn-neutral btn-sm" onclick="closeTeamModal()"><i class="ti ti-x"></i> Zatvori</button>
       </div>
       <div class="form-group" style="margin-bottom:1rem"><label>Naziv ekipe</label><input type="text" id="team-edit-name"></div>
-      <div class="members-input-grid">
-        <div class="form-group"><label>Član 1</label><input type="text" id="team-edit-m1"></div>
-        <div class="form-group"><label>Član 2</label><input type="text" id="team-edit-m2"></div>
-        <div class="form-group"><label>Član 3</label><input type="text" id="team-edit-m3"></div>
-        <div class="form-group"><label>Član 4</label><input type="text" id="team-edit-m4"></div>
-      </div>
+      <div class="form-group" style="margin-bottom:0.5rem"><label>Igrači</label></div>
+      <div id="team-edit-members"></div>
+      <button class="btn btn-neutral btn-sm" onclick="addTeamMemberRow('')" style="margin-top:0.25rem"><i class="ti ti-plus"></i> Dodaj igrača</button>
       <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;">
         <button class="btn btn-neutral" onclick="closeTeamModal()">Odustani</button>
         <button class="btn btn-success" onclick="saveTeamEdit()"><i class="ti ti-check"></i> Spremi</button>
@@ -557,8 +576,8 @@ function renderPlayerInfo() {
   const buildList = (team, players, prefix) => {
     if (!players.length) return '';
     let items = players.map((p,i) => `
-      <label class="player-check" style="display:flex;align-items:center;gap:8px;padding:0.35rem 0;font-size:14px;cursor:pointer;user-select:none;">
-        <input type="checkbox" id="${prefix}-${i}" checked onchange="togglePlayerStrike(this,'${prefix}-label-${i}')" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--c-terra-dark);">
+      <label class="player-check">
+        <input type="checkbox" id="${prefix}-${i}" checked onchange="togglePlayerStrike(this,'${prefix}-label-${i}')">
         <span id="${prefix}-label-${i}" style="transition:all 0.15s;">${p}</span>
       </label>`).join('');
     return `<div class="form-group"><label>Igrači ${team.name}</label><div style="margin-top:4px">${items}</div></div>`;
@@ -695,8 +714,8 @@ function openEditModal(id) {
     if (!allPlayers.length) return '';
     const items = allPlayers.map((p,i) => {
       const isActive = activePlayers.includes(p);
-      return `<label class="player-check" style="display:flex;align-items:center;gap:8px;padding:0.35rem 0;font-size:14px;cursor:pointer;user-select:none;">
-        <input type="checkbox" id="${prefix}-${i}" ${isActive?'checked':''} onchange="togglePlayerStrike(this,'${prefix}-label-${i}')" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--c-terra-dark);">
+      return `<label class="player-check">
+        <input type="checkbox" id="${prefix}-${i}" ${isActive?'checked':''} onchange="togglePlayerStrike(this,'${prefix}-label-${i}')">
         <span id="${prefix}-label-${i}" style="transition:all 0.15s;${isActive?'':'text-decoration:line-through;opacity:0.5;'}">${p}</span>
       </label>`;
     }).join('');
@@ -766,8 +785,21 @@ function openTeamEditModal(num) {
   editingTeamNum = num;
   const team = state.teams[num-1];
   document.getElementById('team-edit-name').value = team.name;
-  for (let i=1; i<=4; i++) document.getElementById('team-edit-m'+i).value = team.members[i-1] || '';
+  document.getElementById('team-edit-members').innerHTML = '';
+  const existing = (team.members || []).filter(m => m.trim());
+  const count = Math.max(existing.length, 4);
+  for (let i = 0; i < count; i++) addTeamMemberRow(existing[i] || '');
   document.getElementById('team-edit-modal').style.display = 'block';
+}
+function addTeamMemberRow(value) {
+  const wrap = document.getElementById('team-edit-members');
+  const row = document.createElement('div');
+  row.className = 'member-edit-row';
+  row.innerHTML = '<div class="form-group"><input type="text" class="team-member-input" placeholder="Ime igrača"></div>' +
+    '<button class="btn btn-danger" title="Ukloni" onclick="this.parentNode.remove()"><i class="ti ti-trash"></i></button>';
+  row.querySelector('input').value = value || '';
+  wrap.appendChild(row);
+  if (!value) row.querySelector('input').focus();
 }
 function closeTeamModal() {
   document.getElementById('team-edit-modal').style.display = 'none';
@@ -777,7 +809,8 @@ function saveTeamEdit() {
   if (!editingTeamNum) return;
   const idx = editingTeamNum - 1;
   const name = document.getElementById('team-edit-name').value.trim();
-  const members = [1,2,3,4].map(i => document.getElementById('team-edit-m'+i).value.trim());
+  const members = Array.from(document.querySelectorAll('#team-edit-members .team-member-input'))
+    .map(i => i.value.trim()).filter(Boolean);
   if (!name) { showAlert('admin-alert','Naziv ne smije biti prazan.','error'); return; }
   state.teams[idx].name = name;
   state.teams[idx].members = members;
