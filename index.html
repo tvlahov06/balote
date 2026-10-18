@@ -308,28 +308,6 @@
 
     <div class="section-title">Upravljanje ekipama</div>
     <div class="teams-grid" id="admin-teams-display"></div>
-    <div class="card">
-      <div style="font-size:14px;margin-bottom:0.75rem;color:var(--c-red)">Ekipa 1</div>
-      <div class="form-group" style="margin-bottom:0.75rem"><label>Naziv ekipe</label><input type="text" id="admin-team1-name"></div>
-      <div class="members-input-grid">
-        <div class="form-group"><label>Član 1</label><input type="text" id="t1m1"></div>
-        <div class="form-group"><label>Član 2</label><input type="text" id="t1m2"></div>
-        <div class="form-group"><label>Član 3</label><input type="text" id="t1m3"></div>
-        <div class="form-group"><label>Član 4</label><input type="text" id="t1m4"></div>
-      </div>
-      <button class="btn btn-primary" onclick="saveTeam(1)"><i class="ti ti-device-floppy"></i> Spremi ekipu 1</button>
-    </div>
-    <div class="card">
-      <div style="font-size:14px;margin-bottom:0.75rem;color:var(--c-sky)">Ekipa 2</div>
-      <div class="form-group" style="margin-bottom:0.75rem"><label>Naziv ekipe</label><input type="text" id="admin-team2-name"></div>
-      <div class="members-input-grid">
-        <div class="form-group"><label>Član 1</label><input type="text" id="t2m1"></div>
-        <div class="form-group"><label>Član 2</label><input type="text" id="t2m2"></div>
-        <div class="form-group"><label>Član 3</label><input type="text" id="t2m3"></div>
-        <div class="form-group"><label>Član 4</label><input type="text" id="t2m4"></div>
-      </div>
-      <button class="btn btn-primary" onclick="saveTeam(2)"><i class="ti ti-device-floppy"></i> Spremi ekipu 2</button>
-    </div>
 
     <div class="section-title" style="margin-top:0.5rem">Pregled utakmica</div>
     <div id="admin-matches-list"></div>
@@ -340,6 +318,26 @@
       <button class="btn btn-danger" onclick="confirmAction('Obrisati sve utakmice?',clearMatchesConfirmed)">
         <i class="ti ti-trash"></i> Briši sve utakmice
       </button>
+    </div>
+  </div>
+
+  <div id="team-edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,36,22,0.55);z-index:200;overflow-y:auto;padding:2rem 1rem;display:none;">
+    <div class="modal-inner">
+      <div class="modal-title">
+        <span>Izmjena ekipe</span>
+        <button class="btn btn-neutral btn-sm" onclick="closeTeamModal()"><i class="ti ti-x"></i> Zatvori</button>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem"><label>Naziv ekipe</label><input type="text" id="team-edit-name"></div>
+      <div class="members-input-grid">
+        <div class="form-group"><label>Član 1</label><input type="text" id="team-edit-m1"></div>
+        <div class="form-group"><label>Član 2</label><input type="text" id="team-edit-m2"></div>
+        <div class="form-group"><label>Član 3</label><input type="text" id="team-edit-m3"></div>
+        <div class="form-group"><label>Član 4</label><input type="text" id="team-edit-m4"></div>
+      </div>
+      <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;">
+        <button class="btn btn-neutral" onclick="closeTeamModal()">Odustani</button>
+        <button class="btn btn-success" onclick="saveTeamEdit()"><i class="ti ti-check"></i> Spremi</button>
+      </div>
     </div>
   </div>
 
@@ -533,17 +531,15 @@ function renderAdminView() {
   currentFormat=2; document.getElementById('fmt2').classList.add('active'); document.getElementById('fmt3').classList.remove('active');
   renderPlayerInfo(); renderPartijeUnos('partije-unos',2,[]); updatePreview();
   const t1=state.teams[0], t2=state.teams[1];
-  document.getElementById('admin-team1-name').value=t1.name;
-  document.getElementById('admin-team2-name').value=t2.name;
-  ['t1m1','t1m2','t1m3','t1m4'].forEach((id,i)=>{document.getElementById(id).value=t1.members[i]||'';});
-  ['t2m1','t2m2','t2m3','t2m4'].forEach((id,i)=>{document.getElementById(id).value=t2.members[i]||'';});
   let th='';
-  [t1,t2].forEach(team=>{
+  [t1,t2].forEach((team,idx)=>{
     const mm=team.members.filter(m=>m.trim());
     th+=`<div class="team-card">
       <div class="team-header ${team.color}"><span class="team-name-display">${team.name}</span><span style="color:#fff;font-size:12px;opacity:0.75">${mm.length} igrača</span></div>
       <div class="team-body">${mm.length===0?'<p style="font-size:13px;color:var(--c-muted);font-style:italic">Nema unesenih igrača</p>':
-        '<ul class="member-list">'+mm.map(m=>{const init=m.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();return`<li class="member-item"><div class="member-avatar">${init}</div><span>${m}</span></li>`;}).join('')+'</ul>'}</div>
+        '<ul class="member-list">'+mm.map(m=>{const init=m.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();return`<li class="member-item"><div class="member-avatar">${init}</div><span>${m}</span></li>`;}).join('')+'</ul>'}
+        <button class="btn btn-warning btn-sm" style="margin-top:0.75rem;width:100%;justify-content:center" onclick="openTeamEditModal(${idx+1})"><i class="ti ti-edit"></i> Uredi ekipu</button>
+      </div>
     </div>`;
   });
   document.getElementById('admin-teams-display').innerHTML=th;
@@ -704,13 +700,29 @@ function saveEdit() {
   closeModal();syncToGitHub().then(()=>renderAdminView());
 }
 function closeModal(){document.getElementById('edit-modal').style.display='none';editingMatchId=null;}
-function saveTeam(num) {
-  const idx=num-1;
-  const name=document.getElementById('admin-team'+num+'-name').value.trim();
-  const members=[1,2,3,4].map(i=>document.getElementById('t'+num+'m'+i).value.trim());
-  if(!name){showAlert('admin-alert','Naziv ne smije biti prazan.','error');return;}
-  state.teams[idx].name=name;state.teams[idx].members=members;
+let editingTeamNum = null;
+function openTeamEditModal(num) {
+  editingTeamNum = num;
+  const team = state.teams[num-1];
+  document.getElementById('team-edit-name').value = team.name;
+  for (let i=1; i<=4; i++) document.getElementById('team-edit-m'+i).value = team.members[i-1] || '';
+  document.getElementById('team-edit-modal').style.display = 'block';
+}
+function closeTeamModal() {
+  document.getElementById('team-edit-modal').style.display = 'none';
+  editingTeamNum = null;
+}
+function saveTeamEdit() {
+  if (!editingTeamNum) return;
+  const idx = editingTeamNum - 1;
+  const name = document.getElementById('team-edit-name').value.trim();
+  const members = [1,2,3,4].map(i => document.getElementById('team-edit-m'+i).value.trim());
+  if (!name) { showAlert('admin-alert','Naziv ne smije biti prazan.','error'); return; }
+  state.teams[idx].name = name;
+  state.teams[idx].members = members;
+  closeTeamModal();
   syncToGitHub().then(()=>renderAdminView());
+  showAlert('admin-alert','Ekipa spremljena!','success');
 }
 function showAlert(id,msg,type) {
   const el=document.getElementById(id);if(!el)return;
